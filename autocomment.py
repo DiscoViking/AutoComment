@@ -1,9 +1,21 @@
 import vim
 
 LINE_WIDTH = 80
-COMMENT_START = '/*'
-COMMENT_END = '*/'
-COMMENT_LINE = '*'
+COMMENT_STYLES = {
+        'python':('#','#','#'),
+        'c':('/*','*','*/'),
+        'scheme':(';;','-',';;')
+        }
+
+################################################################################
+# Find the correct comment style for the file we are in. If we don't           #
+# recognise the filetype, default to python-style comments.                    #
+################################################################################
+filetype = vim.eval('&filetype')
+if filetype not in COMMENT_STYLES:
+    filetype = 'python'
+
+(COMMENT_START, COMMENT_LINE, COMMENT_END) = COMMENT_STYLES[filetype]
   
 def isCommentLine(line):
     if len(line) > 0 and line[:len(COMMENT_START)] == COMMENT_START:
@@ -41,7 +53,7 @@ def createCommentBlock(text=None):
     
     blockWidth = LINE_WIDTH - x
     innerWidth = blockWidth - len(COMMENT_START) - len(COMMENT_END)
-
+     
     r[0] = ' ' * x + COMMENT_START + innerWidth * COMMENT_LINE + COMMENT_END
     r.append(' ' * x + COMMENT_START + innerWidth * ' ' + COMMENT_END)
     r.append(' ' * x + COMMENT_START + innerWidth * COMMENT_LINE + COMMENT_END)
@@ -61,8 +73,14 @@ def formatCommentBlock(block):
 
     words = [w.strip() for w in text.split()]
     line = (' ' * indent) + COMMENT_START + ' '
+    ########################################################################
+    # Here we add words to the line until it will no longer fit, and then  #
+    # add it to the buffer. If a word is too long to fit in the comment    #
+    # block on it's own, it will be added anyway.                          #
+    ########################################################################
     while len(words) > 0:
-        if len(line + words[0] + ' ') < LINE_WIDTH - len(COMMENT_END):
+        if ((len(line + words[0] + ' ') < LINE_WIDTH - len(COMMENT_END)) or
+            (len(words[0]) + 2 > innerWidth)):
             line += words[0] + ' '
             words = words[1:]
         else:
