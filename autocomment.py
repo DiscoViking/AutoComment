@@ -2,7 +2,7 @@ import vim
 
 LINE_WIDTH = 80
 COMMENT_CHAR = '#'
-
+   
 def getCommentBlock():
     w = vim.current.window
     b = vim.current.buffer
@@ -26,7 +26,7 @@ def getCommentBlock():
 
     return b.range(start+1,end+1)
 
-def create_block(text=None):
+def createCommentBlock(text=None):
     w = vim.current.window
     b = vim.current.buffer
     (y, x) = w.cursor
@@ -51,10 +51,10 @@ def formatCommentBlock(block):
     block.append(' ' * indent + COMMENT_CHAR * blockWidth)
 
     words = [w.strip() for w in text.split()]
-    line = (' ' * indent) + COMMENT_CHAR
+    line = (' ' * indent) + COMMENT_CHAR + ' '
     while len(words) > 0:
-        if len(line + ' ' + words[0]) < LINE_WIDTH:
-            line += ' ' + words[0]
+        if len(line + words[0] + ' ') < LINE_WIDTH:
+            line += words[0] + ' '
             words = words[1:]
         else:
             block.append(line)
@@ -63,8 +63,4 @@ def formatCommentBlock(block):
     block.append(line)
     block.append(' ' * indent + COMMENT_CHAR * blockWidth)
 
-b = getCommentBlock()
-if b == None:
-    create_block()
-else:
-    formatCommentBlock(b)
+    vim.current.window.cursor = (block.start + len(block) - 1, len(block[-2]))
