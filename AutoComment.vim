@@ -2,7 +2,9 @@ if !has('python')
     finish
 endif
 
-python import sys; sys.path.append('/home/ryan/.vim/plugin/AutoComment')
+let s:plugin_path = escape(expand('<sfile>:p:h'), '\')
+
+exe 'python import sys; sys.path.append("' . s:plugin_path . '")'
 
 function! DoAutoComment()
 
