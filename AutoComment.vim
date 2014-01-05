@@ -27,7 +27,7 @@ import vim
 from autocomment import *
 b = getCommentBlock()
 if b != None:
-    formatCommentBlock(b)
+    formatBlockFromCurrentLine(b)
 EOF
 
 endfunc
