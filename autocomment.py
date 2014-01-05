@@ -115,7 +115,7 @@ def formatBlockFromCurrentLine(block):
 
     lines = lines[blockLine-1:]
     del block[blockLine:-1]
-
+    
     firstLine = True
     while len(lines) > 0:
         line = ' '
@@ -145,7 +145,10 @@ def formatBlockFromCurrentLine(block):
                 lines[0] = words + lines[0]
             else:
                 lines.append(words)
-
+        ########################################################################
+        # If the line we were on wrapped, move the cursor to the next line, in #
+        # front of the word that wrapped.                                      #
+        ########################################################################
         if firstLine:
             firstLine = False
             if len(words) > 0 and x >= LINE_WIDTH - len(COMMENT_END):
