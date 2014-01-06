@@ -34,4 +34,4 @@ endfunc
 
 command! AutoComment call DoAutoComment()
 command! FormatComment call DoFormatComment()
-inoremap <silent> <Space> <Space><C-\><C-o>:FormatComment<CR>
+"inoremap <silent> <Space> <Space><C-\><C-o>:FormatComment<CR>

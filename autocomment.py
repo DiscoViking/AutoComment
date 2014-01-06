@@ -2,7 +2,7 @@ import vim
 
 LINE_WIDTH = 80
 COMMENT_STYLES = {
-        'python':('#','#','#'),
+        'python':('#','-',''),
         'c':('/*','*','*/'),
         'scheme':(';;','-',';;')
         }
@@ -55,7 +55,10 @@ def createCommentBlock(text=None):
     innerWidth = blockWidth - len(COMMENT_START) - len(COMMENT_END)
      
     r[0] = ' ' * x + COMMENT_START + innerWidth * COMMENT_LINE + COMMENT_END
-    r.append(' ' * x + COMMENT_START + innerWidth * ' ' + COMMENT_END)
+
+    innards = innerWidth * ' ' if COMMENT_END != '' else ' '
+    r.append(' ' * x + COMMENT_START + innards + COMMENT_END)
+
     r.append(' ' * x + COMMENT_START + innerWidth * COMMENT_LINE + COMMENT_END)
 
     w.cursor = (y+1, x+2)
@@ -85,7 +88,8 @@ def formatCommentBlock(block):
         while (len(words) > 0) and (len(line + words[0]) < innerWidth):
             line += words.pop(0) + ' '
 
-        block.append(' ' * indent + COMMENT_START + line.ljust(innerWidth) + COMMENT_END)
+        innards = line.ljust(innerWidth) if COMMENT_END != '' else line
+        block.append(' ' * indent + COMMENT_START + innards + COMMENT_END)
 
         ########################################################################
         # Add any left over words to the next line, unless it's a blank line,  #
@@ -99,7 +103,7 @@ def formatCommentBlock(block):
                 lines[0] = words + lines[0]
             else:
                 lines.append(words)
-
+    
     block.append(' ' * indent + COMMENT_START + innerWidth * COMMENT_LINE + COMMENT_END)
 
     vim.current.window.cursor = (block.start + len(block) - 1, indent + len(COMMENT_START) + len(line))
@@ -131,7 +135,8 @@ def formatBlockFromCurrentLine(block):
         while (len(words) > 0) and (len(line + words[0]) < innerWidth):
             line += words.pop(0) + ' '
 
-        block.append(' ' * indent + COMMENT_START + line.ljust(innerWidth) + COMMENT_END, (block.end-block.start))
+        innards = line.ljust(innerWidth) if COMMENT_END != '' else line
+        block.append(' ' * indent + COMMENT_START + innards + COMMENT_END, (block.end-block.start))
 
         ########################################################################
         # Add any left over words to the next line, unless it's a blank line,  #
