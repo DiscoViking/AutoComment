@@ -1,16 +1,16 @@
 import vim
 
-LINE_WIDTH = 80
+LINE_WIDTH = 79
 COMMENT_STYLES = {
         'python':('#','-',''),
         'c':('/*','*','*/'),
         'scheme':(';;','-',';;')
         }
 
-################################################################################
-# Find the correct comment style for the file we are in. If we don't           #
-# recognise the filetype, default to python-style comments.                    #
-################################################################################
+#------------------------------------------------------------------------------
+# Find the correct comment style for the file we are in. If we don't 
+# recognise the filetype, default to pythonstyle comments. 
+#------------------------------------------------------------------------------
 filetype = vim.eval('&filetype')
 if filetype not in COMMENT_STYLES:
     filetype = 'python'
@@ -78,11 +78,11 @@ def formatCommentBlock(block):
         line = ' '
         words = lines.pop(0)
 
-        ########################################################################
-        # Add words onto the current line until it no longer fits inside the   #
-        # comment block. We add the first word on automatically to prevent a   #
-        # crash when there is only one super long word in the line.            #
-        ########################################################################
+        #----------------------------------------------------------------------
+        # Add words onto the current line until it no longer fits inside the 
+        # comment block. We add the first word on automatically to prevent a 
+        # crash when there is only one super long word in the line. 
+        #----------------------------------------------------------------------
         if len(words) > 0:
             line += words.pop(0) + ' '
         while (len(words) > 0) and (len(line + words[0]) < innerWidth):
@@ -91,11 +91,11 @@ def formatCommentBlock(block):
         innards = line.ljust(innerWidth) if COMMENT_END != '' else line
         block.append(' ' * indent + COMMENT_START + innards + COMMENT_END)
 
-        ########################################################################
-        # Add any left over words to the next line, unless it's a blank line,  #
-        # in which case create a new line for them. We want to preserve        #
-        # paragraphs.                                                          #
-        ########################################################################
+        #----------------------------------------------------------------------
+        # Add any left over words to the next line, unless it's a blank line, 
+        # in which case create a new line for them. We want to preserve 
+        # paragraphs. 
+        #----------------------------------------------------------------------
         if len(words) > 0:
             if len(lines) > 0 and len(lines[0]) == 0:
                 lines.insert(0, words)
@@ -125,11 +125,11 @@ def formatBlockFromCurrentLine(block):
         line = ' '
         words = lines.pop(0)
 
-        ########################################################################
-        # Add words onto the current line until it no longer fits inside the   #
-        # comment block. We add the first word on automatically to prevent a   #
-        # crash when there is only one super long word in the line.            #
-        ########################################################################
+        #----------------------------------------------------------------------
+        # Add words onto the current line until it no longer fits inside the 
+        # comment block. We add the first word on automatically to prevent a 
+        # crash when there is only one super long word in the line. 
+        #----------------------------------------------------------------------
         if len(words) > 0:
             line += words.pop(0) + ' '
         while (len(words) > 0) and (len(line + words[0]) < innerWidth):
@@ -138,11 +138,11 @@ def formatBlockFromCurrentLine(block):
         innards = line.ljust(innerWidth) if COMMENT_END != '' else line
         block.append(' ' * indent + COMMENT_START + innards + COMMENT_END, (block.end-block.start))
 
-        ########################################################################
-        # Add any left over words to the next line, unless it's a blank line,  #
-        # in which case create a new line for them. We want to preserve        #
-        # paragraphs.                                                          #
-        ########################################################################
+        #----------------------------------------------------------------------
+        # Add any left over words to the next line, unless it's a blank line, 
+        # in which case create a new line for them. We want to preserve 
+        # paragraphs. 
+        #----------------------------------------------------------------------
         if len(words) > 0:
             if len(lines) > 0 and len(lines[0]) == 0:
                 lines.insert(0, words)
@@ -150,10 +150,10 @@ def formatBlockFromCurrentLine(block):
                 lines[0] = words + lines[0]
             else:
                 lines.append(words)
-        ########################################################################
-        # If the line we were on wrapped, move the cursor to the next line, in #
-        # front of the word that wrapped.                                      #
-        ########################################################################
+        #----------------------------------------------------------------------
+        # If the line we were on wrapped, move the cursor to the next line, in 
+        # front of the word that wrapped. 
+        #----------------------------------------------------------------------
         if firstLine:
             firstLine = False
             if len(words) > 0 and x >= LINE_WIDTH - len(COMMENT_END):
