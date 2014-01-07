@@ -32,6 +32,17 @@ EOF
 
 endfunc
 
+function! DoOnReturn()
+
+python << EOF
+import vim
+from autocomment import *
+onReturn()
+EOF
+
+endfunc
 command! AutoComment call DoAutoComment()
 command! FormatComment call DoFormatComment()
+command! OnReturn call DoOnReturn()
 "inoremap <silent> <Space> <Space><C-\><C-o>:FormatComment<CR>
+"inoremap <silent> <Return> <Return><C-\><C-o>:OnReturn<CR>

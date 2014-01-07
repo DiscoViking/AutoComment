@@ -159,3 +159,19 @@ def formatBlockFromCurrentLine(block):
             if len(words) > 0 and x >= LINE_WIDTH - len(COMMENT_END):
                 vim.current.window.cursor = (currentLine + 1, indent + len(COMMENT_START) + len(' '.join(words)) + 2)
 
+def onReturn():
+    b = vim.current.buffer
+    row = vim.current.window.cursor[0] - 1
+
+    if not isCommentLine(b[row - 1].strip()):
+        return    
+
+    indent = len(b[row-1].split()[0])
+    b[row] = (' ' * indent) + COMMENT_START + b[row]
+    comment = getCommentBlock()
+
+    if comment != None:
+        formatBlockFromCurrentLine(comment)
+        vim.current.window.cursor = (row + 1, indent + 2)
+
+
