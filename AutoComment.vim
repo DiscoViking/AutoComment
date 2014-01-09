@@ -11,9 +11,9 @@ function! DoAutoComment()
 python << EOF
 import vim
 from autocomment import *
-b = getCommentBlock()
+b = getCommentBlockAt(vim.current.window.cursor[0])
 if b != None:
-    formatCommentBlock(b)
+    formatBlockFrom(b, 0)
 else:
     createCommentBlock()
 EOF
@@ -25,9 +25,9 @@ function! DoFormatComment()
 python << EOF
 import vim
 from autocomment import *
-b = getCommentBlock()
+b = getCommentBlockAt(vim.current.window.cursor[0])
 if b != None:
-    formatBlockFromCurrentLine(b)
+    formatBlockFrom(b, vim.current.window.cursor[0]-b.start)
 EOF
 
 endfunc
