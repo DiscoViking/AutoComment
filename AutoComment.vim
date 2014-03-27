@@ -13,7 +13,7 @@ import vim
 from autocomment import *
 b = getCommentBlockAt(vim.current.window.cursor[0])
 if b != None:
-    formatBlockFrom(b, 0)
+    formatBlockFrom(b, 1)
 else:
     createCommentBlock()
 EOF
@@ -44,5 +44,5 @@ endfunc
 command! AutoComment call DoAutoComment()
 command! FormatComment call DoFormatComment()
 command! OnReturn call DoOnReturn()
-"inoremap <silent> <Space> <Space><C-\><C-o>:FormatComment<CR>
+inoremap <silent> <Space> <Space><C-\><C-o>:FormatComment<CR>
 "inoremap <silent> <Return> <Return><C-\><C-o>:OnReturn<CR>
