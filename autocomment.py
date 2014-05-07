@@ -5,6 +5,7 @@ COMMENT_STYLES = {
         'python':('#','-',''),
         'sh':('#','#',''),
         'c':('/*','*','*/'),
+        'cpp':('/*','*','*/'),
         'scheme':(';;','-',';;')
         }
 
@@ -41,6 +42,9 @@ def blockEnd(indent):
     return ' '*indent + COMMENT_START + COMMENT_LINE*innerWidth + COMMENT_END
 
 def getCommentBlockAt(row):
+    if not loadCommentStyle():
+        return
+
     b = vim.current.buffer
 
     line = b[row-1].strip()
@@ -102,7 +106,7 @@ def formatBlockFrom(block, row):
     # Only format until we get to a blank row. This formats one paragraph.
     #--------------------------------------------------------------------------
     end = row
-    while (end < block.end - block.start):# and len(getText(block[end])) > 0:
+    while (end <= block.end - block.start):# and len(getText(block[end])) > 0:
         end += 1
 
     p = b.range(row + block.start, end + block.start)
@@ -113,6 +117,8 @@ def formatBlockFrom(block, row):
     lines = [getText(line).split() for line in p]
     if startOfBlock:
         lines = lines[1:]
+    if endOfBlock:
+        lines = lines[:-1]
 
     (y,x) = vim.current.window.cursor
 
@@ -136,7 +142,7 @@ def formatBlockFrom(block, row):
 
     if startOfBlock:
         p.append(blockStart(indent), 0)
-        if endOfBlock:
+        if row == end:
             p.append(buildLine("", indent))
             y += 1
     if endOfBlock:
