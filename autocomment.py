@@ -8,6 +8,7 @@ COMMENT_STYLES = {
         'cpp':('/*','*','*/'),
         'scheme':(';;','-',';;')
         }
+IGNORE_HEADERS = ["PROC", "STRUCT"]
 
 def loadCommentStyle():
     global COMMENT_START, COMMENT_LINE, COMMENT_END
@@ -59,10 +60,15 @@ def getCommentBlockAt(row):
         line = b[start-1].strip()
 
     #--------------------------------------------------------------------------
-    # If the top line contained PROC, do not format.
-    # this is a hack to make us not mess up nbase function headers.
+    # If the top line of the block contains one of the specified headers, do
+    # not return the block.
+    # This is a hack to make sure we don't mess up function headers etc,
+    # since AutoComment does not currently handle their more advanced
+    # formatting.
     #--------------------------------------------------------------------------
-    if getText(b[start]).startswith("PROC"):
+    firstLine = getText(b[start])
+    if reduce(lambda b, s: True if b else firstLine.startswith(s),
+              IGNORE_HEADERS, False):
         return None
 
     line = b[end+1].strip()
