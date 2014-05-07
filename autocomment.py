@@ -121,39 +121,79 @@ def formatBlockFrom(block, row):
     endOfBlock = (p.end == block.end)
 
     lines = [getText(line).split() for line in p]
-    if startOfBlock:
-        lines = lines[1:]
-    if endOfBlock:
-        lines = lines[:-1]
+
+    #--------------------------------------------------------------------------
+    # Work out if this is a 1 line block or not. If it isn't, then we will
+    # have blank lines at the top and bottom from where the big lines are, so
+    # remove them.
+    #--------------------------------------------------------------------------
+    newBlock = block.start == block.end
+    if not newBlock:
+        if startOfBlock:
+            lines = lines[1:]
+        if endOfBlock:
+            lines = lines[:-1]
 
     (y,x) = vim.current.window.cursor
 
+    #--------------------------------------------------------------------------
+    # Delete everything, we will rebuild it from scratch.
+    #--------------------------------------------------------------------------
     del p[:]
     firstLine = True
     carriedChars = 0
     while len(lines) > 0:
         words = lines.pop(0)
         line = ''
+
+        #----------------------------------------------------------------------
+        # Add words to this line until it no longer fits in one LINE_WIDTH.
+        #----------------------------------------------------------------------
         while len(words) > 0 and (len(line + words[0]) < innerWidth or len(line) == 0):
             line += words.pop(0) + ' '
 
         p.append(buildLine(line, indent))
 
+        #----------------------------------------------------------------------
+        # Move any leftover words to the beginning of the next line.
+        # If there is no next line, add one.
+        #----------------------------------------------------------------------
         if len(lines) > 0:
             lines[0] = words + lines[0]
         elif len(words) > 0:
             lines.append(words)
+
+        #----------------------------------------------------------------------
+        # If we carried characters over on the first line, record how many.
+        # This is used later to move the cursor to the correct place when
+        # wrapping text.
+        #----------------------------------------------------------------------
         if len(words) > 0 and firstLine:
             carriedChars = indent + len(COMMENT_START) + 1 + len(words[0])
+        elif newBlock:
+            #------------------------------------------------------------------
+            # Move the cursor to the end of the line to force it to be placed
+            # on the next line later.
+            #------------------------------------------------------------------
+            x = LINE_WIDTH
+            carriedChars = indent + len(COMMENT_START) + len(line)
 
+    #--------------------------------------------------------------------------
+    # If we're formatting from the beginning, add in the top block line since
+    # we will have erased it earlier.
+    #--------------------------------------------------------------------------
     if startOfBlock:
         p.append(blockStart(indent), 0)
-        if row == end:
-            p.append(buildLine("", indent))
-            y += 1
+
+    #--------------------------------------------------------------------------
+    # Similarly add in an end block line if necessary.
+    #--------------------------------------------------------------------------
     if endOfBlock:
         p.append(blockEnd(indent))
 
+    #--------------------------------------------------------------------------
+    # Move the cursor to a sensible place.
+    #--------------------------------------------------------------------------
     if carriedChars == 0 or x < LINE_WIDTH - len(COMMENT_END) - 1:
         vim.current.window.cursor = (y, min(x, len(p[0])))
     else:
