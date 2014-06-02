@@ -8,7 +8,10 @@ COMMENT_STYLES = {
         'cpp':('/*','*','*/'),
         'scheme':(';;','-',';;')
         }
-IGNORE_HEADERS = ["PROC", "STRUCT"]
+IGNORE_HEADERS = ["PROC", "STRUCT", "MOD"]
+COMMENT_START, COMMENT_LINE, COMMENT_END = ("", "", "")
+
+SENTENCE_ENDERS = ["?", ".", "!"]
 
 def loadCommentStyle():
     global COMMENT_START, COMMENT_LINE, COMMENT_END
@@ -169,7 +172,7 @@ def formatBlockFrom(block, row):
         # wrapping text.
         #----------------------------------------------------------------------
         if len(words) > 0 and firstLine:
-            carriedChars = indent + len(COMMENT_START) + 1 + len(words[0])
+            carriedChars = indent + len(COMMENT_START) + len(words[0]) + 1
         elif newBlock:
             #------------------------------------------------------------------
             # Move the cursor to the end of the line to force it to be placed
@@ -195,6 +198,8 @@ def formatBlockFrom(block, row):
     # Move the cursor to a sensible place.
     #--------------------------------------------------------------------------
     if carriedChars == 0 or x < LINE_WIDTH - len(COMMENT_END) - 1:
-        vim.current.window.cursor = (y, min(x, len(p[0])))
+        y, x = (y, min(x, len(p[0])))
     else:
-        vim.current.window.cursor = (y+1, carriedChars + 1)
+        y, x = (y+1, carriedChars + 1)
+
+    vim.current.window.cursor = (y, x)
