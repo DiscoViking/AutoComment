@@ -6,7 +6,8 @@ COMMENT_STYLES = {
         'sh':('#','#',''),
         'c':('/*','*','*/'),
         'cpp':('/*','*','*/'),
-        'scheme':(';;','-',';;')
+        'scheme':(';;','-',';;'),
+        'vim':('"','-','')
         }
 IGNORE_HEADERS = ["PROC", "STRUCT", "MOD"]
 COMMENT_START, COMMENT_LINE, COMMENT_END = ("", "", "")
@@ -154,6 +155,14 @@ def formatBlockFrom(block, row):
         #----------------------------------------------------------------------
         while len(words) > 0 and (len(line + words[0]) < innerWidth or len(line) == 0):
             line += words.pop(0) + ' '
+            #------------------------------------------------------------------
+            # Add another space if end of sentence.
+            # Move the cursor to match if necessary.
+            #------------------------------------------------------------------
+            if (line[-2] in SENTENCE_ENDERS) and (len(line)+1 < innerWidth):
+                line += ' '
+                if x == indent + len(COMMENT_START) + len(line):
+                    x += 1
 
         p.append(buildLine(line, indent))
 
@@ -173,6 +182,13 @@ def formatBlockFrom(block, row):
         #----------------------------------------------------------------------
         if len(words) > 0 and firstLine:
             carriedChars = indent + len(COMMENT_START) + len(words[0]) + 1
+            #------------------------------------------------------------------
+            # If the carried word was the end of a sentence, add 1 to
+            # carriedChars so that the cursor is put 2 spaces after it if we
+            # wrap.
+            #------------------------------------------------------------------
+            if words[0][-1] in SENTENCE_ENDERS:
+                carriedChars += 1
         elif newBlock:
             #------------------------------------------------------------------
             # Move the cursor to the end of the line to force it to be placed
