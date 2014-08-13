@@ -1,4 +1,5 @@
 import vim
+import re
 
 LINE_WIDTH = 79
 COMMENT_STYLES = {
@@ -31,7 +32,10 @@ def isCommentLine(line):
     return False
 
 def getText(line):
-    return line.replace(COMMENT_START,'').replace(COMMENT_END,'').replace(COMMENT_LINE,'').strip()
+    text = line.replace(COMMENT_START,'').replace(COMMENT_END,'').replace(COMMENT_LINE,'').rstrip()
+    if text.startswith(" "):
+        text = text[1:]
+    return text
 
 def buildLine(text, indent):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END) - 2
@@ -124,7 +128,8 @@ def formatBlockFrom(block, row):
     startOfBlock = (p.start == block.start)
     endOfBlock = (p.end == block.end)
 
-    lines = [getText(line).split() for line in p]
+    r = re.compile("\\S+|\\s+")
+    lines = [r.findall(getText(line)) for line in p]
 
     #--------------------------------------------------------------------------
     # Work out if this is a 1 line block or not. If it isn't, then we will
@@ -153,16 +158,8 @@ def formatBlockFrom(block, row):
         #----------------------------------------------------------------------
         # Add words to this line until it no longer fits in one LINE_WIDTH.
         #----------------------------------------------------------------------
-        while len(words) > 0 and (len(line + words[0]) < innerWidth or len(line) == 0):
-            line += words.pop(0) + ' '
-            #------------------------------------------------------------------
-            # Add another space if end of sentence.
-            # Move the cursor to match if necessary.
-            #------------------------------------------------------------------
-            if (line[-2] in SENTENCE_ENDERS) and (len(line)+1 < innerWidth):
-                line += ' '
-                if x == indent + len(COMMENT_START) + len(line):
-                    x += 1
+        while len(words) > 0 and (len(line + words[0]) <= innerWidth or len(line) == 0):
+            line += words.pop(0)# + ' '
 
         p.append(buildLine(line, indent))
 
