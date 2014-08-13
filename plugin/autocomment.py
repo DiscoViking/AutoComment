@@ -10,7 +10,7 @@ COMMENT_STYLES = {
         'scheme':(';;','-',';;'),
         'vim':('"','-','')
         }
-IGNORE_HEADERS = ["PROC", "STRUCT", "MOD"]
+IGNORE_HEADERS = []
 COMMENT_START, COMMENT_LINE, COMMENT_END = ("", "", "")
 
 SENTENCE_ENDERS = ["?", ".", "!"]
@@ -32,7 +32,10 @@ def isCommentLine(line):
     return False
 
 def getText(line):
-    text = line.replace(COMMENT_START,'').replace(COMMENT_END,'').replace(COMMENT_LINE,'').rstrip()
+    r = re.compile("^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*|"+re.escape(COMMENT_END)+"\s*$")
+    text = r.sub("", line)
+    if COMMENT_END != "":
+        text = text.rstrip()
     if text.startswith(" "):
         text = text[1:]
     return text
