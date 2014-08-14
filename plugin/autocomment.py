@@ -219,7 +219,7 @@ def formatBlockFrom(block, row):
         # wrapping text.
         #----------------------------------------------------------------------
         if len(words) > 0 and firstLine:
-            carriedChars = indent + len(COMMENT_START) + len(words[0]) + len(leading_spaces) + 1
+            carriedChars = indent + len(COMMENT_START) + len(words[0]) + len(leading_spaces)
             if len(words) > 1:
                 carriedChars += len(words[1])
         elif newBlock:
@@ -251,6 +251,6 @@ def formatBlockFrom(block, row):
     if carriedChars == 0 or x < LINE_WIDTH - len(COMMENT_END) - 1:
         y, x = (y, min(x, len(p[0])))
     else:
-        y, x = (y+1, carriedChars)
+        y, x = (y+1, carriedChars + 1)
 
     vim.current.window.cursor = (y, x)
