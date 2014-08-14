@@ -32,7 +32,9 @@ def isCommentLine(line):
     return False
 
 def getText(line):
-    regex = "^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*|"+re.escape(COMMENT_END)+"\s*$"
+    regex = "^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*"
+    if COMMENT_END != "":
+        regex += "|"+re.escape(COMMENT_END)+"\s*$"
     r = re.compile(regex)
     text = r.sub("", line)
     if text.startswith(" "):
