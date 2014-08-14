@@ -46,13 +46,19 @@ def buildLine(text, indent):
     innards =  text.ljust(innerWidth) if COMMENT_END != '' else text
     return ' '*indent + COMMENT_START + ' ' + innards + ' ' + COMMENT_END
 
-def blockStart(indent):
+def blockStart(indent, header=""):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END)
-    return ' '*indent + COMMENT_START + COMMENT_LINE*innerWidth + COMMENT_END
+    middle_bit = COMMENT_LINE * ((innerWidth/len(COMMENT_LINE))+1)
+    middle_bit = middle_bit[:innerWidth]
+    middle_bit = middle_bit[0] + header + middle_bit[len(header)+1:]
+    return ' '*indent + COMMENT_START + middle_bit + COMMENT_END
 
-def blockEnd(indent):
+def blockEnd(indent, footer=""):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END)
-    return ' '*indent + COMMENT_START + COMMENT_LINE*innerWidth + COMMENT_END
+    middle_bit = COMMENT_LINE * ((innerWidth/len(COMMENT_LINE))+1)
+    middle_bit = middle_bit[:innerWidth]
+    middle_bit = middle_bit[0] + footer + middle_bit[len(footer):]
+    return ' '*indent + COMMENT_START + middle_bit + COMMENT_END
 
 def getCommentBlockAt(row):
     if not loadCommentStyle():
@@ -121,10 +127,10 @@ def formatBlockFrom(block, row):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END) - 2
 
     #--------------------------------------------------------------------------
-    # Only format until we get to a blank row. This formats one paragraph.
+    # Format until the end of the comment block.
     #--------------------------------------------------------------------------
     end = row
-    while (end <= block.end - block.start):# and len(getText(block[end])) > 0:
+    while (end <= block.end - block.start):
         end += 1
 
     p = b.range(row + block.start, end + block.start)
@@ -141,10 +147,16 @@ def formatBlockFrom(block, row):
     # remove them.
     #--------------------------------------------------------------------------
     newBlock = block.start == block.end
+    header = ""
+    footer = ""
     if not newBlock:
         if startOfBlock:
+            if len(lines[0]) > 0:
+                header = lines[0][0].replace(COMMENT_LINE, "")
             lines = lines[1:]
         if endOfBlock:
+            if len(lines[-1]) > 0:
+                footer = lines[-1][0].replace(COMMENT_LINE, "")
             lines = lines[:-1]
 
     (y,x) = vim.current.window.cursor
@@ -237,13 +249,13 @@ def formatBlockFrom(block, row):
     # we will have erased it earlier.
     #--------------------------------------------------------------------------
     if startOfBlock:
-        p.append(blockStart(indent), 0)
+        p.append(blockStart(indent, header), 0)
 
     #--------------------------------------------------------------------------
     # Similarly add in an end block line if necessary.
     #--------------------------------------------------------------------------
     if endOfBlock:
-        p.append(blockEnd(indent))
+        p.append(blockEnd(indent, footer))
 
     #--------------------------------------------------------------------------
     # Move the cursor to a sensible place.
