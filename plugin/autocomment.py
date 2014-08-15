@@ -1,5 +1,8 @@
 import vim
 import re
+import logging
+
+logging.basicConfig(filename='autocomment.log',level=logging.ERROR)
 
 LINE_WIDTH = 79
 COMMENT_STYLES = {
@@ -22,6 +25,7 @@ def loadCommentStyle():
         return False
 
     (COMMENT_START, COMMENT_LINE, COMMENT_END) = COMMENT_STYLES[filetype]
+    logging.debug("Loaded %s: %s%s%s" % (filetype, COMMENT_START, COMMENT_LINE, COMMENT_END))
     return True
 
 loadCommentStyle()
@@ -32,13 +36,19 @@ def isCommentLine(line):
     return False
 
 def getText(line):
-    regex = "^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*"
+    logging.debug("Extracting from: %s" % line)
     if COMMENT_END != "":
-        regex += "|"+re.escape(COMMENT_END)+"\s*$"
-    r = re.compile(regex)
-    text = r.sub("", line)
+        end_regex = re.escape(COMMENT_END)+"\s*$"
+        r = re.compile(end_regex)
+        text = r.sub("", line)
+
+    start_regex = "^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*"
+    r = re.compile(start_regex)
+    text = r.sub("", text)
     if text.startswith(" "):
         text = text[1:]
+
+    logging.debug("Got: %s" % text)
     return text
 
 def buildLine(text, indent):
@@ -57,7 +67,7 @@ def blockEnd(indent, footer=""):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END)
     middle_bit = COMMENT_LINE * ((innerWidth/len(COMMENT_LINE))+1)
     middle_bit = middle_bit[:innerWidth]
-    middle_bit = middle_bit[0] + footer + middle_bit[len(footer):]
+    middle_bit = middle_bit[0] + footer + middle_bit[len(footer)+1:]
     return ' '*indent + COMMENT_START + middle_bit + COMMENT_END
 
 def getCommentBlockAt(row):
