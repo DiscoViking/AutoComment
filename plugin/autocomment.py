@@ -1,8 +1,13 @@
 import vim
 import re
 import logging
+import os
 
-logging.basicConfig(filename='autocomment.log',level=logging.ERROR)
+logger = logging.getLogger(__name__)
+directory = os.path.dirname(__file__)
+handler = logging.FileHandler(filename=os.path.join(directory,'autocomment.log'))
+logger.setLevel(logging.ERROR)
+logger.addHandler(handler)
 
 LINE_WIDTH = 79
 COMMENT_STYLES = {
@@ -25,7 +30,7 @@ def loadCommentStyle():
         return False
 
     (COMMENT_START, COMMENT_LINE, COMMENT_END) = COMMENT_STYLES[filetype]
-    logging.debug("Loaded %s: %s%s%s" % (filetype, COMMENT_START, COMMENT_LINE, COMMENT_END))
+    logger.debug("Loaded %s: %s%s%s" % (filetype, COMMENT_START, COMMENT_LINE, COMMENT_END))
     return True
 
 loadCommentStyle()
@@ -36,7 +41,7 @@ def isCommentLine(line):
     return False
 
 def getText(line):
-    logging.debug("Extracting from: %s" % line)
+    logger.debug("Extracting from: %s" % line)
     if COMMENT_END != "":
         end_regex = re.escape(COMMENT_END)+"\s*$"
         r = re.compile(end_regex)
@@ -48,7 +53,7 @@ def getText(line):
     if text.startswith(" "):
         text = text[1:]
 
-    logging.debug("Got: %s" % text)
+    logger.debug("Got: %s" % text)
     return text
 
 def buildLine(text, indent):
