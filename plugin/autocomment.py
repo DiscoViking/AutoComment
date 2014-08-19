@@ -166,15 +166,16 @@ def formatBlockFrom(block, row):
     # have blank lines at the top and bottom from where the big lines are, so
     # remove them.
     #--------------------------------------------------------------------------
-    newBlock = block.start == block.end
     header = ""
     footer = ""
-    if not newBlock:
-        if startOfBlock:
+    r = re.compile("\\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE))
+    if startOfBlock:
+        if r.match(p[0]):
             if len(lines[0]) > 0:
                 header = lines[0][0].replace(COMMENT_LINE, "")
             lines = lines[1:]
-        if endOfBlock:
+    if endOfBlock:
+        if r.match(p[-1]):
             if len(lines[-1]) > 0:
                 footer = lines[-1][0].replace(COMMENT_LINE, "")
             lines = lines[:-1]
@@ -254,7 +255,7 @@ def formatBlockFrom(block, row):
             carriedChars = indent + len(COMMENT_START) + len(words[0]) + len(leading_spaces)
             if len(words) > 1:
                 carriedChars += len(words[1])
-        elif newBlock:
+        elif startOfBlock:
             #------------------------------------------------------------------
             # Move the cursor to the end of the line to force it to be placed
             # on the next line later.
