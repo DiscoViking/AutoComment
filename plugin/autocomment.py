@@ -45,11 +45,11 @@ def getText(line):
     if COMMENT_END != "":
         end_regex = re.escape(COMMENT_END)+"\s*$"
         r = re.compile(end_regex)
-        text = r.sub("", line)
+        line = r.sub("", line)
 
     start_regex = "^\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE)+"*"
     r = re.compile(start_regex)
-    text = r.sub("", text)
+    text = r.sub("", line)
     if text.startswith(" "):
         text = text[1:]
 
@@ -57,9 +57,14 @@ def getText(line):
     return text
 
 def buildLine(text, indent):
+    logger.debug("Building from: %s" % text)
+
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END) - 2
-    innards =  text.ljust(innerWidth) if COMMENT_END != '' else text
-    return ' '*indent + COMMENT_START + ' ' + innards + ' ' + COMMENT_END
+    innards =  text.rstrip().ljust(innerWidth) if COMMENT_END != '' else text
+    line = ' '*indent + COMMENT_START + ' ' + innards + ' ' + COMMENT_END
+
+    logger.debug("Built: %s" % line)
+    return line
 
 def blockStart(indent, header=""):
     innerWidth = LINE_WIDTH - indent - len(COMMENT_START) - len(COMMENT_END)
