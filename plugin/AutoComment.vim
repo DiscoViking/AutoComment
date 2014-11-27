@@ -12,6 +12,10 @@ exe 'python import sys; sys.path.append("' . s:plugin_path . '")'
 
 function! DoAutoComment()
 
+  if !IsAutocommentEnabled()
+    return
+  endif
+
 python << EOF
 import vim
 from autocomment import *
@@ -24,7 +28,7 @@ endfunc
 
 function! DoFormatComment()
 
-  if g:autocomment_disabled
+  if !IsAutocommentEnabled()
     return
   endif
 
@@ -39,6 +43,10 @@ EOF
 endfunc
 
 function! DoOnReturn()
+
+  if !IsAutocommentEnabled()
+    return
+  endif
 
 python << EOF
 import vim
@@ -55,6 +63,21 @@ function! DoToggleAutoComment()
   else
     echom "Autocomment Enabled."
   endif
+endfunc
+
+function! IsAutocommentEnabled()
+  " Test global option first.
+  if exists("g:autocomment_disabled") && g:autocomment_disabled
+    return 0
+  endif
+
+  " Get filetype specific option.
+  let l:filetype_var = "g:autocomment_" . &filetype . "_disabled"
+  if exists(l:filetype_var) && eval(l:filetype_var)
+    return 0
+  endif
+
+  return 1
 endfunc
 
 command! ToggleAutoComment call DoToggleAutoComment()
