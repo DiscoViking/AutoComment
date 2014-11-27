@@ -92,10 +92,10 @@ def getCommentBlockAt(row):
 
     start = end = row-1
 
-    line = b[start-1].strip()
-    while isCommentLine(line):
+    lnum = start-1
+    while lnum >=0 and isCommentLine(b[start-1].strip()):
         start -= 1
-        line = b[start-1].strip()
+        lnum = start-1
 
     #--------------------------------------------------------------------------
     # If the top line of the block contains one of the specified headers, do
@@ -109,10 +109,10 @@ def getCommentBlockAt(row):
               IGNORE_HEADERS, False):
         return None
 
-    line = b[end+1].strip()
-    while isCommentLine(line):
+    lnum = end+1
+    while lnum < len(b) and isCommentLine(b[end+1].strip()):
         end += 1
-        line = b[end+1].strip()
+        lnum = end+1
 
     return b.range(start+1, end+1)
 
