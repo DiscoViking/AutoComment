@@ -11,12 +11,13 @@ logger.addHandler(handler)
 
 LINE_WIDTH = 79
 COMMENT_STYLES = {
-        'python':('#','-',''),
+        'python':('#','',''),
         'sh':('#','#',''),
         'c':('/*','*','*/'),
         'cpp':('/*','*','*/'),
         'scheme':(';;','-',';;'),
-        'vim':('"','-','')
+        'vim':('"','-',''),
+        'make':('#','-','')
         }
 IGNORE_HEADERS = []
 COMMENT_START, COMMENT_LINE, COMMENT_END = ("", "", "")
