@@ -170,18 +170,20 @@ def formatBlockFrom(block, row):
     header = ""
     footer = ""
     r = re.compile("\\s*"+re.escape(COMMENT_START)+re.escape(COMMENT_LINE))
-    if startOfBlock:
+    if startOfBlock and COMMENT_LINE:
         if r.match(p[0]):
             if len(lines[0]) > 0:
                 header = lines[0][0].replace(COMMENT_LINE, "")
             lines = lines[1:]
-    if endOfBlock:
+    if endOfBlock and COMMENT_LINE:
         if r.match(p[-1]):
             if len(lines[-1]) > 0:
                 footer = lines[-1][0].replace(COMMENT_LINE, "")
             lines = lines[:-1]
 
     (y,x) = vim.current.window.cursor
+
+    logger.debug("Reformatting block:\n---\n" + "\n".join("".join(l) for l in lines) + "\n---")
 
     #--------------------------------------------------------------------------
     # Delete everything, we will rebuild it from scratch.
@@ -256,7 +258,7 @@ def formatBlockFrom(block, row):
             carriedChars = indent + len(COMMENT_START) + len(words[0]) + len(leading_spaces)
             if len(words) > 1:
                 carriedChars += len(words[1])
-        elif startOfBlock:
+        elif startOfBlock and COMMENT_LINE:
             #------------------------------------------------------------------
             # Move the cursor to the end of the line to force it to be placed
             # on the next line later.
@@ -270,13 +272,13 @@ def formatBlockFrom(block, row):
     # If we're formatting from the beginning, add in the top block line since
     # we will have erased it earlier.
     #--------------------------------------------------------------------------
-    if startOfBlock:
+    if startOfBlock and COMMENT_LINE:
         p.append(blockStart(indent, header), 0)
 
     #--------------------------------------------------------------------------
     # Similarly add in an end block line if necessary.
     #--------------------------------------------------------------------------
-    if endOfBlock:
+    if endOfBlock and COMMENT_LINE:
         p.append(blockEnd(indent, footer))
 
     #--------------------------------------------------------------------------
